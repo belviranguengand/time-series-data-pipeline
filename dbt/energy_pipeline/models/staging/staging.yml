@@ -1,0 +1,69 @@
+version: 2
+
+models:
+  - name: stg_building_metadata
+    description: "Métadonnées des bâtiments préparées depuis la couche RAW."
+
+    columns:
+      - name: building_id
+        description: "Identifiant unique du bâtiment."
+        data_tests:
+          - not_null
+          - unique
+
+      - name: site_id
+        description: "Identifiant du site auquel appartient le bâtiment."
+        data_tests:
+          - not_null
+
+      - name: primary_use
+        description: "Usage principal du bâtiment."
+        data_tests:
+          - not_null
+
+      - name: square_feet
+        description: "Surface du bâtiment en pieds carrés."
+        data_tests:
+          - not_null
+
+  - name: stg_weather
+    description: "Données météorologiques horaires préparées depuis la couche RAW."
+
+    columns:
+      - name: site_id
+        description: "Identifiant du site."
+        data_tests:
+          - not_null
+
+      - name: timestamp
+        description: "Date et heure de la mesure météorologique."
+        data_tests:
+          - not_null
+
+  - name: stg_train
+    description: "Relevés horaires de consommation énergétique préparés depuis la couche RAW."
+
+    columns:
+      - name: building_id
+        description: "Identifiant du bâtiment."
+        data_tests:
+          - not_null
+
+      - name: meter
+        description: "Type de compteur énergétique : 0 électricité, 1 eau glacée, 2 vapeur, 3 eau chaude."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [0, 1, 2, 3]
+                quote: false
+
+      - name: timestamp
+        description: "Date et heure du relevé."
+        data_tests:
+          - not_null
+
+      - name: meter_reading
+        description: "Valeur de consommation enregistrée par le compteur."
+        data_tests:
+          - not_null

@@ -1,0 +1,78 @@
+version: 2
+
+models:
+  - name: mart_energy_consumption
+    description: "Relevés énergétiques enrichis avec les métadonnées des bâtiments et les données météorologiques."
+
+    columns:
+      - name: building_id
+        description: "Identifiant du bâtiment."
+        data_tests:
+          - not_null
+
+      - name: site_id
+        description: "Identifiant du site auquel appartient le bâtiment."
+        data_tests:
+          - not_null
+
+      - name: meter
+        description: "Type de compteur énergétique."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [0, 1, 2, 3]
+                quote: false
+
+      - name: timestamp
+        description: "Date et heure du relevé énergétique."
+        data_tests:
+          - not_null
+
+      - name: meter_reading
+        description: "Valeur du relevé énergétique."
+        data_tests:
+          - not_null
+
+  - name: mart_daily_site_consumption
+    description: "Agrégation quotidienne des relevés énergétiques par site et type de compteur."
+
+    columns:
+      - name: site_id
+        description: "Identifiant du site."
+        data_tests:
+          - not_null
+
+      - name: date
+        description: "Date de l'agrégation quotidienne."
+        data_tests:
+          - not_null
+
+      - name: meter
+        description: "Type de compteur énergétique."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [0, 1, 2, 3]
+                quote: false
+
+      - name: total_meter_reading
+        description: "Somme des relevés pour le site, la date et le type de compteur."
+        data_tests:
+          - not_null
+
+      - name: avg_meter_reading
+        description: "Moyenne des relevés du groupe."
+        data_tests:
+          - not_null
+
+      - name: reading_count
+        description: "Nombre de relevés utilisés dans l'agrégation."
+        data_tests:
+          - not_null
+
+      - name: building_count
+        description: "Nombre de bâtiments distincts représentés dans l'agrégation."
+        data_tests:
+          - not_null

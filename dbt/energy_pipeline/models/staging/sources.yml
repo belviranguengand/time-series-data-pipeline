@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: raw_ashrae
+    database: time-series-data-pipeline
+    schema: raw_ashrae
+
+    tables:
+      - name: building_metadata
+      - name: weather_train
+      - name: train
