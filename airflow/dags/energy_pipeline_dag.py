@@ -35,8 +35,24 @@ with DAG(
         ),
     )
 
+    load_to_bigquery = BashOperator(
+        task_id="load_to_bigquery",
+        bash_command=(
+            "cd /opt/airflow && "
+            "python src/ingestion/load_to_bigquery.py"
+        ),
+    )
+
+    dbt_build = BashOperator(
+        task_id="dbt_build",
+        bash_command=(
+            "cd /opt/airflow/dbt/energy_pipeline && "
+            "dbt build"
+        ),
+    )
+
     end = EmptyOperator(
         task_id="end"
     )
 
-    start >> validate_sources >> ingest_to_gcs >> end
+    start >> validate_sources >> ingest_to_gcs >> load_to_bigquery >> dbt_build >> end
