@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from airflow import DAG
 from airflow.operators.empty import EmptyOperator
@@ -33,6 +33,8 @@ with DAG(
             "cd /opt/airflow && "
             "python src/ingestion/ingest_data.py"
         ),
+        retries=2,
+        retry_delay=timedelta(minutes=2),
     )
 
     load_to_bigquery = BashOperator(
@@ -40,6 +42,16 @@ with DAG(
         bash_command=(
             "cd /opt/airflow && "
             "python src/ingestion/load_to_bigquery.py"
+        ),
+        retries=2,
+        retry_delay=timedelta(minutes=2),
+    )
+
+    check_bigquery_data = BashOperator(
+        task_id="check_bigquery_data",
+        bash_command=(
+            "cd /opt/airflow && "
+            "python src/monitoring/check_bigquery_data.py"
         ),
     )
 
@@ -49,10 +61,12 @@ with DAG(
             "cd /opt/airflow/dbt/energy_pipeline && "
             "dbt build"
         ),
+        retries=1,
+        retry_delay=timedelta(minutes=2),
     )
 
     end = EmptyOperator(
         task_id="end"
     )
 
-    start >> validate_sources >> ingest_to_gcs >> load_to_bigquery >> dbt_build >> end
+    start >> validate_sources >> ingest_to_gcs >> load_to_bigquery >> check_bigquery_data >> dbt_build >> end
