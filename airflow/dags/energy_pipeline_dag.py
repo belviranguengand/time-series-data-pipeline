@@ -12,7 +12,13 @@ with DAG(
     schedule=None,
     catchup=False,
     max_active_runs=1,
-    tags=["data-engineering", "energy", "gcp", "dbt"],
+    tags=[
+        "data-engineering",
+        "energy",
+        "gcp",
+        "dbt",
+        "spark",
+    ],
 ) as dag:
 
     start = EmptyOperator(
@@ -55,6 +61,18 @@ with DAG(
         ),
     )
 
+    spark_processing = BashOperator(
+        task_id="spark_processing",
+        bash_command=(
+            "cd /opt/airflow && "
+            "spark-submit "
+            "--master local[*] "
+            "src/spark/aggregate_energy.py"
+        ),
+        retries=1,
+        retry_delay=timedelta(minutes=2),
+    )
+
     dbt_build = BashOperator(
         task_id="dbt_build",
         bash_command=(
@@ -69,4 +87,13 @@ with DAG(
         task_id="end"
     )
 
-    start >> validate_sources >> ingest_to_gcs >> load_to_bigquery >> check_bigquery_data >> dbt_build >> end
+    (
+        start
+        >> validate_sources
+        >> ingest_to_gcs
+        >> load_to_bigquery
+        >> check_bigquery_data
+        >> spark_processing
+        >> dbt_build
+        >> end
+    )
